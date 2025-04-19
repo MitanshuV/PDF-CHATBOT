@@ -8,6 +8,7 @@ import numpy as np
 import uuid
 from flask import Flask, request, jsonify
 from werkzeug.utils import secure_filename
+from flask_cors import CORS
 
 # Initialize Flask app
 app = Flask(__name__)
@@ -82,6 +83,11 @@ def preprocess_image_for_ocr(img):
     gray = cv2.cvtColor(img_cv, cv2.COLOR_BGR2GRAY)
     return Image.fromarray(gray)
 
+@app.route('/hello', methods=['GET'])
+def hello_world():
+    """Simple API endpoint for testing."""
+    return jsonify({'message': 'Hello, World!'})
+
 @app.route('/upload-file', methods=['POST'])
 def process_file():
     """API endpoint to process uploaded files."""
@@ -120,3 +126,6 @@ def get_extracted_text(file_id):
 # Run the server
 if __name__ == '__main__':
     app.run(debug=True)
+    # app.run(host='0.0.0.0', port=5000, debug=True)
+    
+    # CORS(app, origins=["http://localhost:5173"])
