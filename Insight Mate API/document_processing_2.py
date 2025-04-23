@@ -19,7 +19,7 @@ os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 # Set up Tesseract path (Modify this to your installed path)
-pytesseract.pytesseract.tesseract_cmd = r'D:\Software\Tesseract-OCR\tesseract.exe'  
+pytesseract.pytesseract.tesseract_cmd = r'Tesseract-OCR/tesseract.exe'  
 
 # Dictionary to store extracted
 extracted_text_store = {}
