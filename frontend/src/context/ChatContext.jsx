@@ -5,9 +5,9 @@ const ChatContext = createContext();
 export const useChat = () => useContext(ChatContext);
 
 export const ChatProvider = ({ children }) => {
-  const [pdfText, setPdfText] = useState(""); // Store extracted text
   const [chatHistory, setChatHistory] = useState([]);
 
+  // ✅ Only uploads file to backend, does not store extracted text
   const uploadPDF = async (file) => {
     const formData = new FormData();
     formData.append("file", file);
@@ -20,18 +20,23 @@ export const ChatProvider = ({ children }) => {
       });
 
       if (!res.ok) throw new Error("Failed to upload file");
-      const data = await res.json();
-      setPdfText(data.extracted_text); // Save extracted text
+
+      // ❌ No need to store or use extracted text
+      // const data = await res.json();
+      // setPdfText(data.extracted_text);
+
     } catch (err) {
       console.error("Upload error:", err);
     }
   };
 
+  // 💬 Adds user message to chat history, generates a bot response
   const sendMessage = async (userMessage) => {
     const newHistory = [...chatHistory, { from: "user", text: userMessage }];
     setChatHistory(newHistory);
 
-    const botResponse = `Based on your PDF, here's a reply to: "${userMessage}"\n\n[Sample Text: ${pdfText.slice(0, 100)}...]`;
+    // 🧠 Dummy bot reply (can be updated to use real backend AI later)
+    const botResponse = `This is a bot reply to: "${userMessage}"`;
 
     setTimeout(() => {
       setChatHistory((prev) => [...prev, { from: "bot", text: botResponse }]);
@@ -39,7 +44,7 @@ export const ChatProvider = ({ children }) => {
   };
 
   return (
-    <ChatContext.Provider value={{ pdfText, chatHistory, uploadPDF, sendMessage }}>
+    <ChatContext.Provider value={{ chatHistory, uploadPDF, sendMessage }}>
       {children}
     </ChatContext.Provider>
   );
