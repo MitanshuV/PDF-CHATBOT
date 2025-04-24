@@ -3,26 +3,24 @@ import React, { useState } from "react";
 import { FileText, Upload, X, CheckCircle } from "lucide-react";
 
 export default function PDFUploader() {
-  const { uploadPDF } = useChat();
+  const { uploadFile } = useChat();
   const [selectedFiles, setSelectedFiles] = useState([]);
   const [isDragging, setIsDragging] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
 
-  // Handle file input selection (multiple PDFs)
   const handleFileChange = (e) => {
     const files = Array.from(e.target.files).filter(
-      (file) => file.type === "application/pdf"
+      (file) => file.size < 10 * 1024 * 1024 // max 10MB
     );
     if (files.length > 0) {
       setSelectedFiles(files);
       setIsSuccess(false);
     } else {
-      alert("Please upload valid PDF files.");
+      alert("Please upload files smaller than 10MB.");
     }
   };
 
-  // Handle drag events
   const handleDrag = (e) => {
     e.preventDefault();
     e.stopPropagation();
@@ -33,48 +31,43 @@ export default function PDFUploader() {
     }
   };
 
-  // Handle drop event (multiple files)
   const handleDrop = (e) => {
     e.preventDefault();
     e.stopPropagation();
     setIsDragging(false);
-
     const files = Array.from(e.dataTransfer.files).filter(
-      (file) => file.type === "application/pdf"
+      (file) => file.size < 10 * 1024 * 1024
     );
     if (files.length > 0) {
       setSelectedFiles(files);
       setIsSuccess(false);
     } else {
-      alert("Please upload valid PDF files.");
+      alert("Please upload files smaller than 10MB.");
     }
   };
 
-  // Upload multiple PDFs
   const handleUpload = async () => {
     if (selectedFiles.length === 0) return;
 
     setIsUploading(true);
     try {
       for (let file of selectedFiles) {
-        await uploadPDF(file); // uploadPDF expected to handle single file
+        await uploadFile(file);
       }
       setIsSuccess(true);
     } catch (error) {
       console.error("Upload error:", error);
-      alert("Error uploading one or more PDFs.");
+      alert("Error uploading one or more files.");
     } finally {
       setIsUploading(false);
     }
   };
 
-  // Clear selected files
   const handleClear = () => {
     setSelectedFiles([]);
     setIsSuccess(false);
   };
 
-  // Display readable file size
   const formatFileSize = (bytes) => {
     if (bytes < 1024) return bytes + " bytes";
     else if (bytes < 1048576) return (bytes / 1024).toFixed(1) + " KB";
@@ -83,7 +76,7 @@ export default function PDFUploader() {
 
   return (
     <div className="w-full max-w-md mx-auto">
-      <h2 className="text-xl font-bold mb-4 text-gray-800">Upload Document</h2>
+      <h2 className="text-xl font-bold mb-4 text-gray-800">Upload File(s)</h2>
 
       {selectedFiles.length === 0 ? (
         <div
@@ -101,8 +94,7 @@ export default function PDFUploader() {
         >
           <input
             type="file"
-            accept="application/pdf"
-            multiple // ✅ allow multiple files
+            multiple
             className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
             onChange={handleFileChange}
           />
@@ -112,12 +104,12 @@ export default function PDFUploader() {
             </div>
             <div>
               <p className="font-medium text-gray-700">
-                Drag & drop your PDF here
+                Drag & drop your files here
               </p>
               <p className="text-sm text-gray-500 mt-1">or click to browse files</p>
             </div>
             <div className="text-xs text-gray-400 mt-2">
-              Supported format: PDF (max 10MB)
+              Max file size: 10MB each
             </div>
           </div>
         </div>
@@ -176,7 +168,7 @@ export default function PDFUploader() {
                 Upload Complete
               </div>
             ) : (
-              "Upload PDF"
+              "Upload File(s)"
             )}
           </button>
         </div>

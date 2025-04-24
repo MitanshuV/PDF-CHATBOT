@@ -64,8 +64,6 @@ export default function ChatInput() {
 
         {/* Action buttons */}
         <div className="flex items-center px-3 pb-3">
-          {/* Attachment button (optional) */}
-
           {/* Send button */}
           <button
             type="submit"
