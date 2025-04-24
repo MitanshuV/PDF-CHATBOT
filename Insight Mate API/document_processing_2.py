@@ -8,10 +8,11 @@ import numpy as np
 import uuid
 from flask import Flask, request, jsonify
 from werkzeug.utils import secure_filename
-# from flask_cors import CORS
+from flask_cors import CORS
 
 # Initialize Flask app
 app = Flask(__name__)
+CORS(app, origins=["http://localhost:5173"])  # Enable CORS for frontend
 
 # Set upload folder (temporary storage)
 UPLOAD_FOLDER = 'uploads'
@@ -19,7 +20,7 @@ os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 # Set up Tesseract path (Modify this to your installed path)
-pytesseract.pytesseract.tesseract_cmd = r'Tesseract-OCR/tesseract.exe'  
+pytesseract.pytesseract.tesseract_cmd = r'Tesseract-OCR/tesseract.exe'
 
 # Dictionary to store extracted
 extracted_text_store = {}
@@ -107,11 +108,17 @@ def process_file():
     filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
     file.save(filepath)
 
+    print(f"[PDF Upload] Filename: {filename}, Language: {lang}, Saved at: {filepath}")
+
     extracted_text = process_document(filepath, lang)
     os.remove(filepath)  # Clean up uploaded file
 
     file_id = str(uuid.uuid4())
     extracted_text_store[file_id] = extracted_text
+
+    # ✅ Logging file_id and extracted_text
+    print(f"[Extracted] File ID: {file_id}")
+    print(f"[Extracted] Text: {extracted_text}")
 
     return jsonify({'file_id': file_id, 'extracted_text': extracted_text})
 
@@ -126,6 +133,3 @@ def get_extracted_text(file_id):
 # Run the server
 if __name__ == '__main__':
     app.run(debug=True)
-    # app.run(host='0.0.0.0', port=5000, debug=True)
-    
-    # CORS(app, origins=["http://localhost:5173"])

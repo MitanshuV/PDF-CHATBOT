@@ -7,8 +7,7 @@ export const useChat = () => useContext(ChatContext);
 export const ChatProvider = ({ children }) => {
   const [chatHistory, setChatHistory] = useState([]);
 
-  // ✅ Only uploads file to backend, does not store extracted text
-  const uploadPDF = async (file) => {
+  const uploadFile = async (file) => {
     const formData = new FormData();
     formData.append("file", file);
     formData.append("lang", "eng");
@@ -18,24 +17,29 @@ export const ChatProvider = ({ children }) => {
         method: "POST",
         body: formData,
       });
-
       if (!res.ok) throw new Error("Failed to upload file");
-
-      // ❌ No need to store or use extracted text
-      // const data = await res.json();
-      // setPdfText(data.extracted_text);
-
     } catch (err) {
       console.error("Upload error:", err);
     }
   };
 
-  // 💬 Adds user message to chat history, generates a bot response
+  // create a get request to get hello world from the backend
+  // const getHelloWorld = async () => {
+  //   try {
+  //     const res = await fetch("http://localhost:5000/hello");
+  //     if (!res.ok) throw new Error("Failed to fetch hello world");
+  //     const data = await res.json();
+  //     console.log(data);
+  //   } catch (err) {
+  //     console.error("Fetch error:", err);
+  //   }
+  // };
+  // getHelloWorld();
+
   const sendMessage = async (userMessage) => {
     const newHistory = [...chatHistory, { from: "user", text: userMessage }];
     setChatHistory(newHistory);
 
-    // 🧠 Dummy bot reply (can be updated to use real backend AI later)
     const botResponse = `This is a bot reply to: "${userMessage}"`;
 
     setTimeout(() => {
@@ -44,7 +48,7 @@ export const ChatProvider = ({ children }) => {
   };
 
   return (
-    <ChatContext.Provider value={{ chatHistory, uploadPDF, sendMessage }}>
+    <ChatContext.Provider value={{ chatHistory, uploadFile, sendMessage }}>
       {children}
     </ChatContext.Provider>
   );
